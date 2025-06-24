@@ -1,47 +1,46 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { ref, onMounted } from 'vue';
+import AppHeader from './components/AppHeader.vue';
+import LoginPage from './components/LoginPage.vue';
+import PostsList from './components/PostsList.vue';
+
+const user = ref({});
+
+onMounted(() => {
+  const storedUser = localStorage.getItem('user');
+
+  if (storedUser) {
+    user.value = JSON.parse(storedUser);
+  }
+});
+
+const saveUser = (userData) => {
+  localStorage.setItem('user', JSON.stringify(userData));
+  user.value = userData;
+};
+
+const removeUser = () => {
+  localStorage.removeItem('user');
+  user.value = {};
+};
+
+const isLoggedIn = () => Boolean(user.value.id);
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <LoginPage v-if="!isLoggedIn()" @addUser="saveUser" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+  <template v-else>
+    <AppHeader :user="user" @log-out="removeUser" />
 
-  <main>
-    <TheWelcome />
-  </main>
+    <main class="section">
+      <div class="container">
+        <div class="tile is-ancestor is-flex is-flex-wrap-wrap">
+          <PostsList :user-id="user.id" />
+        </div>
+      </div>
+    </main>
+  </template>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+<style></style>
